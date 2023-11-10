@@ -66,7 +66,7 @@ class Favorite(db.Model):
     id = db.Column(db.Integer, primary_key= True)
     user_id = db.Column(db.Integer, db.ForeignKey ('user.id'))
     people_id = db.Column(db.Integer, db.ForeignKey ('people.id'))
-    planet_id = db.Column(db.Integer, db.ForeignKey ('planet.id'))
+    planet_id = db.Column(db.Integer, db.ForeignKey ('planets.id'))
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
@@ -79,7 +79,7 @@ class Favorite(db.Model):
             "people_id": self.people_id,
             "planet_id": self.planet_id,
             "created": self.created,
-            "planets": self.planets
+
         }
     
 
