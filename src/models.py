@@ -2,84 +2,69 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 db = SQLAlchemy()
+user_planet = db.Table('user_planet',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('planet_id', db.Integer, db.ForeignKey('planets.id')))
+
+user_people = db.Table('user_people',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('people_id', db.Integer, db.ForeignKey('people.id')))
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
-    email= db.Column(db.String(250), nullable=False, unique=True)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    
-    favorite = db.relationship("Favorite", uselist=True, backref='user') 
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(80), unique=False, nullable=False)
+    # Favorites
+    favorite_planet = db.relationship('Planets', secondary=user_planet)
+    favorite_people = db.relationship('People', secondary=user_people)
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return '<User %r>' % self.id
 
     def serialize(self):
         return {
             "id": self.id,
-            "name": self.name,
             "email": self.email,
-            "created": self.created    # do not serialize the password, its a security breach
         }
 
 class People(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    height = db.Column(db.String(120), nullable=False)
-    mass = db.Column(db.String(120), nullable=False)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    favorite = db.relationship('Favorite', backref='people')
+    name = db.Column(db.String(100))
+    height = db.Column(db.Integer)
+    mass = db.Column(db.Integer)
+    birthyear = db.Column(db.String(50))
+    homeworld = db.Column(db.String(100))
 
     def __repr__(self):
-        return '<People %r>' % self.name
-    
+        return '<People %r>' % self.id
+
     def serialize(self):
         return {
-            "id": self.id,
-            "name": self.name,
-            "height": self.height,
-            "mass": self.mass,
-            "created": self.created
+            "Name": self.name,
+            "ID": self.id,
+            "Height": self.height,
+            "Mass": self.mass,
+            "Birthyear": self.birthyear,
+            "Homeworld": self.homeworld
         }
-    
+
 class Planets(db.Model):
-    id = db.Column(db.Integer, primary_key= True)
-    name = db.Column(db.String(120), nullable= False)
-    diameter = db.Column(db.String(120), nullable= False)
-    population = db.Column(db.String(120), nullable= False)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    diameter = db.Column(db.Integer)
+    population = db.Column(db.Integer)
+    climate = db.Column(db.String(100))
+    terrain = db.Column(db.String(100))
 
     def __repr__(self):
-        return '<Planets %r>' % self.name
-    
+        return '<Planets %r>' % self.id
+
     def serialize(self):
         return {
-            "id": self.id,
-            "name": self.name,
-            "diameter": self.diameter,
-            "population": self.population,
-            "mass": self.mass,
-            "created": self.created
+            "Name": self.name,
+            "ID": self.id,
+            "Diameter": self.diameter,
+            "Population": self.population,
+            "Climate": self.climate,
+            "Terrain": self.terrain
         }
-
-class Favorite(db.Model):
-    id = db.Column(db.Integer, primary_key= True)
-    user_id = db.Column(db.Integer, db.ForeignKey ('user.id'))
-    people_id = db.Column(db.Integer, db.ForeignKey ('people.id'))
-    planet_id = db.Column(db.Integer, db.ForeignKey ('planets.id'))
-    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-    def __repr__(self):
-        return '<Favorites %r>' % self.id
-    
-    def serialize(self):
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "people_id": self.people_id,
-            "planet_id": self.planet_id,
-            "created": self.created,
-
-        }
-    
-
